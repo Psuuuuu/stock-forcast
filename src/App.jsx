@@ -1,11 +1,21 @@
-import './App.css'
+import RefreshButton from "./Chunks/Refresh"
+import Graph from "./Components/Graph"
+import Navbar from "./Components/Navbar"
+import Searchbar from "./Components/Searchbar"
+import Slider from "./Components/Slider"
 
 function App() {
 
   return (
-<div>
-  <h1>Hello Dhananjay</h1>
-</div>
+<>
+  <div>
+    <Navbar />
+    <Searchbar />
+    <RefreshButton />
+    <Slider />
+    <Graph />
+  </div>
+</>
   )
 }
 

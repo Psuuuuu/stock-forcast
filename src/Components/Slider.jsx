@@ -1,10 +1,8 @@
 import React from 'react'
 
-const Slider = () => {
+function Slider() {
   return (
-    <h1 className="text-3xl font-bold underline">
-    Hello world!
-  </h1>
+    <div>Slider</div>
   )
 }
 

@@ -1,39 +1,51 @@
-import React from 'react'
+import React, { useState } from 'react';
+import { FaSpinner } from 'react-icons/fa';
 
 function Searchbar() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [stockResults, setStockResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = async (e) => {
+    const { value } = e.target;
+    setSearchTerm(value);
+    setIsLoading(true); 
+    try {
+      const response = await fetch(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${value}&apikey=8GD048J4PDGFHHZB`);
+      const data = await response.json();
+      setStockResults(data.bestMatches || []);
+    } catch (error) {
+      console.error('Error fetching stock results:', error);
+    } finally {
+      setIsLoading(false); 
+    }
+  };
+
   return (
-    <div class="relative m-10">
-    <label for="Search" class="sr-only text-black"> Search </label>
-  
-    <input
-      type="text"
-      id="Search"
-      placeholder="Search for stocks"
-      class="w-full rounded-md border-black py-2.5 pe-10 shadow-sm sm:text-sm"
-    />
-  
-    <span class="absolute inset-y-0 end-0 grid w-10 place-content-center">
-      <button type="button" class="text-gray-600 hover:text-gray-700">
-        <span class="sr-only">Search</span>
-  
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="h-4 w-4"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-          />
-        </svg>
-      </button>
-    </span>
-  </div>
-  )
+    <div className="mt-8">
+      <input
+        type="text"
+        placeholder="Search for a stock..."
+        className="border border-gray-300 rounded-md py-2 px-4 block w-full"
+        value={searchTerm}
+        onChange={handleChange} 
+      />
+      {isLoading && (
+        <div className="mt-2 text-gray-600">
+          <FaSpinner className="animate-spin mr-2" /> Loading...
+        </div>
+      )}
+      {!isLoading && (
+        <ul className="mt-2">
+          {stockResults.map((stock) => (
+            <li key={stock['1. symbol']} className="border-t border-gray-300 py-2 px-4">
+              <strong>{stock['1. symbol']}</strong> - {stock['2. name']}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }
 
-export default Searchbar
+export default Searchbar;

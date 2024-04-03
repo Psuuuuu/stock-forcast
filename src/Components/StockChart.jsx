@@ -15,7 +15,7 @@ function StockChart({ stockSymbol }) {
 
   useEffect(() => {
     const fetchStockData = async () => {
-      const apiKey = "8GD048J4PDGFHHZB"; // Remember to replace with your actual Alpha Vantage API key
+      const apiKey = "UGL2A2KIJPXJE303"; // Remember to replace with your actual Alpha Vantage API key
       const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stockSymbol}&apikey=${apiKey}`;
 
       try {

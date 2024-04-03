@@ -1,23 +1,25 @@
-import React, { useState } from 'react';
-import { FaSpinner } from 'react-icons/fa';
+import React, { useState } from "react";
+import { FaSpinner } from "react-icons/fa";
 
-function Searchbar() {
-  const [searchTerm, setSearchTerm] = useState('');
+function Searchbar({ onStockSelect }) {
+  const [searchTerm, setSearchTerm] = useState("");
   const [stockResults, setStockResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = async (e) => {
     const { value } = e.target;
     setSearchTerm(value);
-    setIsLoading(true); 
+    setIsLoading(true);
     try {
-      const response = await fetch(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${value}&apikey=8GD048J4PDGFHHZB`);
+      const response = await fetch(
+        `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${value}&apikey=8GD048J4PDGFHHZB`
+      );
       const data = await response.json();
       setStockResults(data.bestMatches || []);
     } catch (error) {
-      console.error('Error fetching stock results:', error);
+      console.error("Error fetching stock results:", error);
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
 
@@ -28,7 +30,7 @@ function Searchbar() {
         placeholder="Search for a stock..."
         className="border border-gray-300 rounded-md py-2 px-4 block w-full"
         value={searchTerm}
-        onChange={handleChange} 
+        onChange={handleChange}
       />
       {isLoading && (
         <div className="mt-2 text-gray-600">
@@ -38,8 +40,12 @@ function Searchbar() {
       {!isLoading && (
         <ul className="mt-2">
           {stockResults.map((stock) => (
-            <li key={stock['1. symbol']} className="border-t border-gray-300 py-2 px-4">
-              <strong>{stock['1. symbol']}</strong> - {stock['2. name']}
+            <li
+              key={stock["1. symbol"]}
+              className="border-t border-gray-300 py-2 px-4 cursor-pointer"
+              onClick={() => onStockSelect(stock["1. symbol"])}
+            >
+              <strong>{stock["1. symbol"]}</strong> - {stock["2. name"]}
             </li>
           ))}
         </ul>

@@ -13,8 +13,9 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.0.1",
+    "recharts": "^2.12.3",
     "tailgrids": "^2.1.0",
-    "tailgrids-react": "^0.2.0"
+    "tailgrids-react": "^0.1.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

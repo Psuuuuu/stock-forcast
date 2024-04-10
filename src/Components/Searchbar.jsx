@@ -5,7 +5,8 @@ function Searchbar({ onStockSelect }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [stockResults, setStockResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showResults, setShowResults] = useState(true);
+  const [showResults, setShowResults] = useState(false);
+  const [showNoResults, setShowNoResults] = useState(false);
 
   // Correctly implemented debounce function using useCallback
   const debouncedSearch = useCallback(
@@ -13,16 +14,22 @@ function Searchbar({ onStockSelect }) {
       if (!searchTerm) {
         setStockResults([]);
         setIsLoading(false);
+        setShowNoResults(false);
         return;
       }
       setIsLoading(true);
       try {
         const response = await fetch(
-          `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${searchTerm}&apikey=UGL2A2KIJPXJE303`
+          `https://api.polygon.io/v3/reference/tickers?ticker=${searchTerm}&active=true&apiKey=kmBwNvupY5MSt6djXfLMtytNXEvxnmkx`
         );
         const data = await response.json();
-        console.log(data);
-        setStockResults(data.bestMatches || []);
+        if (data.count === 0) {
+          setShowNoResults(true);
+          setStockResults([]);
+        } else {
+          setShowNoResults(false);
+          setStockResults(data.results || []);
+        }
       } catch (error) {
         console.error("Error fetching stock results:", error);
       } finally {
@@ -33,41 +40,66 @@ function Searchbar({ onStockSelect }) {
   );
 
   useEffect(() => {
-    setShowResults(true);
-    debouncedSearch(searchTerm);
-  }, [searchTerm, debouncedSearch]);
+    if (showResults && searchTerm) { // Only trigger search when showResults is true and searchTerm is not empty
+      debouncedSearch(searchTerm);
+    }
+  }, [searchTerm, debouncedSearch, showResults]);
 
   const handleStockSelect = (symbol) => {
     onStockSelect(symbol);
     setShowResults(false);
   };
 
+  const handleSearchButtonClick = () => {
+    setShowResults(true);
+  };
+
+  const handleInputChange = (e) => {
+    const value = e.target.value.toUpperCase();
+    setSearchTerm(value);
+    setShowResults(false); // Hide results when input changes
+  };
+
   return (
     <div className="mt-8">
-      <input
-        type="text"
-        placeholder="Search for a stock..."
-        className="border border-gray-300 rounded-md py-2 px-4 block w-full"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      {isLoading && (
+      <div className="flex items-center">
+        <input
+          type="text"
+          placeholder="Search for a stock..."
+          className="border border-gray-300 rounded-l-md py-2 px-4 block w-full"
+          value={searchTerm}
+          onChange={handleInputChange}
+        />
+        <button
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-r-md"
+          onClick={handleSearchButtonClick}
+        >
+          Search
+        </button>
+      </div>
+      {isLoading && showResults && (
         <div className="mt-2 text-gray-600">
           <FaSpinner className="animate-spin mr-2" /> Loading...
         </div>
       )}
       {!isLoading && showResults && (
-        <ul className="mt-2">
-          {stockResults.map((stock) => (
-            <li
-              key={stock["1. symbol"]}
-              className="border-t border-gray-300 py-2 px-4 cursor-pointer"
-              onClick={() => handleStockSelect(stock["1. symbol"])}
-            >
-              <strong>{stock["1. symbol"]}</strong> - {stock["2. name"]}
-            </li>
-          ))}
-        </ul>
+        <>
+          {showNoResults ? (
+            <div className="mt-2 text-red-500">No results found</div>
+          ) : (
+            <ul className="mt-2 w-full">
+              {stockResults.map((stock) => (
+                <li
+                  key={stock.ticker}
+                  className="border-t border-gray-300 py-2 px-4 cursor-pointer"
+                  onClick={() => handleStockSelect(stock.ticker)}
+                >
+                  <strong>{stock.ticker}</strong> - {stock.name}
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </div>
   );
